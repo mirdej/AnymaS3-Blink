@@ -109,6 +109,15 @@ void setup_webserver()
                           request->send(404, "application/json", "{\"message\":\"Not found\"}");
   } });
 
+  server.on("/api/blink_interval", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
+              if (request->hasParam("set"))
+              {
+                blink_interval = request->getParam("set")->value().toInt();
+                blink_interval = constrain(blink_interval,0,30000);
+              }
+              request->send(200, "text/text", String(blink_interval)); });
+
   server.serveStatic("/", MAIN_FILE_SYSTEM, "/").setDefaultFile("index.html");
   // server.addHandler(&ws);
 
