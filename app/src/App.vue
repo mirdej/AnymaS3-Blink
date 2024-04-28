@@ -17,6 +17,7 @@ var host;
 const blink_color = ref();
 const blink_interval = ref();
 const toast = useToast();
+const version = __APP_VERSION__
 
 
 //-------------------------------------------------------  INTERACTION
@@ -94,9 +95,8 @@ onMounted(() => {
 
 <template>
   <div class="container">
-    <AppFrame title="Baby-S3-Blink"/>
+    <AppFrame title="Baby-S3-Blink" :app_version="version"/>
     <ConfirmDialog></ConfirmDialog>
-
     <ColorPicker id="color_picker" v-model="blink_color" style="padding-right:1em;" />
     <FloatLabel>
       <InputNumber id="blink_interval" suffix=" ms" v-model="blink_interval" style="padding-right:1em" />

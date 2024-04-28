@@ -8,7 +8,7 @@ import { ref, watch } from 'vue'
 import DeviceInfo from "./DeviceInfo.vue"
 
 //-------------------------------------------------------  REACTIVE
-const props = defineProps(['title'])
+const props = defineProps(['title','app_version']);
 
 const year = ref(0);
 year.value = new Date().getFullYear();
@@ -27,7 +27,7 @@ year.value = new Date().getFullYear();
         {{title}}
     </header>
     <footer>
-        © {{ year }} Michael Egger <a href="https://www.anyma.ch/">[ a n y m a ]</a>
+        Version {{app_version}} © {{ year }} Michael Egger <a href="https://www.anyma.ch/">[ a n y m a ]</a>
     </footer>
     <DeviceInfo />
 
@@ -62,7 +62,7 @@ footer {
     bottom: 0;
     padding-top: 5px;
     border-top: 1px solid rgba(103, 103, 103, 0.721);
-    font-size: .6em;
+    font-size: .7em;
 }
 
 footer a {
