@@ -17,8 +17,8 @@ extern bool preferences_need_write;
 
 void setup_api()
 {
-    server.on("/api/fetchall", HTTP_GET, [](AsyncWebServerRequest *request)
-              {           
+  server.on("/api/fetchall", HTTP_GET, [](AsyncWebServerRequest *request)
+            {           
                 JsonDocument doc;
                 char data[2048];
                 doc["blink_interval"] = blink_interval;
@@ -27,8 +27,8 @@ void setup_api()
                 log_v("Data size: %d", len);
                 request->send(200, "text/text", data); });
 
-    server.on("/api/blink_color", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
+  server.on("/api/blink_color", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
             log_v("api_blink_color");
               if (request->hasParam("set"))
               {
@@ -38,8 +38,8 @@ void setup_api()
               }else {
               request->send(200, "text/text", colorToHex(blink_color));} });
 
-    server.on("/api/blink_interval", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
+  server.on("/api/blink_interval", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
               if (request->hasParam("set"))
               {
                 blink_interval = request->getParam("set")->value().toInt();
@@ -48,9 +48,16 @@ void setup_api()
               }
               request->send(200, "text/text", String(blink_interval)); });
 
-    //---------------------------------------------------------------------------
-    server.on("/api/hostname", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
+  //---------------------------------------------------------------------------
+
+  server.on("/api/reboot", HTTP_GET, [](AsyncWebServerRequest *request)
+            {           
+                request->send(200, "text/text", "rebooting in 1s"); 
+                vTaskDelay(pdMS_TO_TICKS(1000));
+                ESP.restart(); });
+
+  server.on("/api/hostname", HTTP_GET, [](AsyncWebServerRequest *request)
+            {
               if (request->hasParam("set"))
               {
                 hostname = request->getParam("set")->value();
@@ -59,8 +66,8 @@ void setup_api()
               }
               request->send(200, "text/text", String(hostname)); });
 
-    server.on("/api/deviceinfo", HTTP_GET, [](AsyncWebServerRequest *request)
-              {           
+  server.on("/api/deviceinfo", HTTP_GET, [](AsyncWebServerRequest *request)
+            {           
 
                 multi_heap_info_t info;
                 heap_caps_get_info(&info, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT); 
@@ -108,13 +115,13 @@ void setup_api()
 //                                                                                 UTILITY
 String colorToHex(CRGB col)
 {
-    char buf[6];
-    sprintf(buf, "%02X%02X%02X", col.r, col.g, col.b);
-    return String(buf);
+  char buf[6];
+  sprintf(buf, "%02X%02X%02X", col.r, col.g, col.b);
+  return String(buf);
 }
 
 CRGB hexToColor(String s)
 {
-    uint32_t res = strtol(s.c_str(), NULL, 16);
-    return CRGB(res);
+  uint32_t res = strtol(s.c_str(), NULL, 16);
+  return CRGB(res);
 }

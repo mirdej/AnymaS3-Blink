@@ -7,6 +7,7 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
  
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 
 
 import App from "./App.vue"
@@ -19,6 +20,9 @@ import Toast from 'primevue/toast';
 import FloatLabel from 'primevue/floatlabel';
 import ColorPicker from 'primevue/colorpicker';
 
+
+
+
 import './assets/app.css'
 import 'primevue/resources/themes/aura-dark-teal/theme.css'
 import 'primeicons/primeicons.css'
@@ -28,6 +32,7 @@ const app = createApp(App);
 app.use(VueAxios, axios)
 app.use(PrimeVue);
 app.use(ToastService);
+app.use(ConfirmationService);
 
 app.component("Button",Button);
 app.component("InputText",InputText);

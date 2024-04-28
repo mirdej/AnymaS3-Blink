@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import { onMounted } from 'vue'
 import AppFrame from "./AppFrame.vue"
+import ConfirmDialog from 'primevue/confirmdialog';
 
 //-------------------------------------------------------  GLOBALS
 
@@ -64,7 +65,7 @@ onMounted(() => {
 
   var ip = location.host;
   if (ip.startsWith('127') || ip.startsWith('localhost')) {
-    host = "http://baby-s3.local/";
+    host = "http://baby_s3.local/";
   } else {
     host = "http://" + ip + "/";
   }
@@ -94,6 +95,8 @@ onMounted(() => {
 <template>
   <div class="container">
     <AppFrame title="Baby-S3-Blink"/>
+    <ConfirmDialog></ConfirmDialog>
+
     <ColorPicker id="color_picker" v-model="blink_color" style="padding-right:1em;" />
     <FloatLabel>
       <InputNumber id="blink_interval" suffix=" ms" v-model="blink_interval" style="padding-right:1em" />
