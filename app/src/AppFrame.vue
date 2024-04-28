@@ -1,0 +1,66 @@
+<script setup>
+import { ref, watch } from 'vue'
+
+const year = ref(0);
+
+year.value = new Date().getFullYear();
+
+</script>
+
+
+<template>
+    <header>
+        <img class="logo_img" src="/logo_anyma_black.svg" alt="anyma" />
+        Baby-S3 Blink
+    </header>
+    <footer>
+        © {{ year }} Michael Egger <a href="https://www.anyma.ch/">[ a n y m a ]</a>
+    </footer>
+</template>
+
+
+<style>
+header,
+footer {
+    position: absolute;
+    width: 100%;
+    padding: 2%;
+    background: #9ed89e0b;
+    border-bottom: 1px solid rgba(103, 103, 103, 0.721);
+    color: #eee;
+}
+
+header {
+    top: 0;
+    display: flex;
+    align-items: center;
+
+    font-size: 1em;
+}
+
+footer {
+    bottom: 0;
+    padding-top: 5px;
+    border-top: 1px solid rgba(103, 103, 103, 0.721);
+    font-size: .6em;
+}
+
+footer a {
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+footer a:visited {
+    color: aqua
+}
+
+.logo_img {
+    height: 14px;
+    filter: invert(1);
+    fill-opacity: 0.9;
+    padding-right: 2em;
+}
+</style>

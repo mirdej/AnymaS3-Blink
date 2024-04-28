@@ -16,6 +16,7 @@ or: worlds most complicated Arduino Blink Sketch
 #include "FS.h"
 #include <LittleFS.h>
 
+#include <ArduinoJson.h>
 #include <FastLED.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -25,6 +26,7 @@ or: worlds most complicated Arduino Blink Sketch
 #include "ESP-FTP-Server-Lib.h"
 #include "FTPFilesystem.h"
 
+#include "web_api.h"
 //----------------------------------------------------------------------------------------
 //                                                                                  CONFIG
 #define FTP_USER "me"
@@ -45,15 +47,20 @@ WiFiMulti wifiMulti;
 FTPServer ftp;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
-String hostname = "baby-s3";
 
 CRGB pixel[NUM_PIXELS];
+
+bool leds_changed;
 
 Preferences preferences;
 bool preferences_need_write;
 
+//----------------------------------------------------------------------------------------
+//                                                                  GLOBALS EXPOSED IN API
+
 int blink_interval;
-bool leds_changed;
+CRGB blink_color = CRGB::Green;
+String hostname = "baby-s3";
 
 //----------------------------------------------------------------------------------------
 //																				                                        LED Task
@@ -80,6 +87,7 @@ void led_task(void *)
 //========================================================================================
 //----------------------------------------------------------------------------------------
 //																				                                      NETWORKING
+
 //----------------------------------------------------------------------------------------
 //                                                                                  Server
 void setup_webserver()
@@ -108,15 +116,7 @@ void setup_webserver()
                     } else {
                           request->send(404, "application/json", "{\"message\":\"Not found\"}");
   } });
-
-  server.on("/api/blink_interval", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
-              if (request->hasParam("set"))
-              {
-                blink_interval = request->getParam("set")->value().toInt();
-                blink_interval = constrain(blink_interval,0,30000);
-              }
-              request->send(200, "text/text", String(blink_interval)); });
+  setup_api(); // see web_api.h
 
   server.serveStatic("/", MAIN_FILE_SYSTEM, "/").setDefaultFile("index.html");
   // server.addHandler(&ws);
@@ -179,6 +179,11 @@ void preferences_task(void *)
 {
   preferences.begin("anyma");
   blink_interval = preferences.getInt("blink_interval", 1000);
+  hostname = preferences.getString("hostname", "baby-s3");
+  if (preferences.getBytesLength("blink_color") == sizeof(blink_color))
+  {
+    preferences.getBytes("blink_color", &blink_color, sizeof(blink_color));
+  }
 
   while (1)
   {
@@ -186,6 +191,8 @@ void preferences_task(void *)
     if (preferences_need_write)
     {
       preferences.putInt("blink_interval", blink_interval);
+      preferences.putString("hostname", hostname);
+      preferences.putBytes("blink_color", &blink_color, sizeof(blink_color));
       preferences_need_write = false;
       log_v("Preferences written");
     }
@@ -209,7 +216,7 @@ void blink_task(void *)
     {
       if (WiFi.status() == WL_CONNECTED)
       {
-        pixel[0] = CRGB::Green;
+        pixel[0] = blink_color;
       }
       else
       {
@@ -230,6 +237,8 @@ void setup()
 {
   Serial.begin(115200);
   vTaskDelay(pdMS_TO_TICKS(1000));
+  log_v("%s",PROJECT_PATH);
+  log_v("Version %s",FIRMWARE_VERSION);
 
   log_v("________________________");
   log_v("Setup");
