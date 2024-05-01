@@ -25,7 +25,7 @@ void setup_api()
                 doc["blink_color"] = colorToHex(blink_color);
                 size_t len = serializeJson(doc, data);
                 log_v("Data size: %d", len);
-                request->send(200, "text/text", data); });
+                request->send(200, "application/json", data); });
 
   server.on("/api/blink_color", HTTP_GET, [](AsyncWebServerRequest *request)
             {
@@ -100,7 +100,6 @@ void setup_api()
                 
                 doc["psram_size"] = ESP.getPsramSize();
                 doc["psram_free"] = ESP.getFreePsram();
-                doc["psram_free_min"] = ESP.getMinFreePsram();
                 doc["psram_max_alloc"] = ESP.getMaxAllocPsram();
 
                 doc["fs_used"] = LittleFS.usedBytes();
@@ -108,7 +107,7 @@ void setup_api()
     
                 size_t len = serializeJson(doc, data);
                 log_v("Data size: %d", len);
-                request->send(200, "text/text", data); });
+                request->send(200, "application/json", data); });
 }
 
 //----------------------------------------------------------------------------------------
