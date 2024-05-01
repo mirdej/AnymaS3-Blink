@@ -77,7 +77,7 @@ const setHostname = () => {
         })
         .catch(function (error) {
             console.log(error);
-            toast.add({ severity: 'danger', summary: 'An error occured', detail: error });
+            toast.add({ severity: 'error', summary: 'An error occured', detail: error });
         })
         .finally(function () {
             // always executed
@@ -103,7 +103,7 @@ const onPowerButtonClick = () => {
                 })
                 .catch(function (error) {
                     console.log(error);
-                    toast.add({ severity: 'danger', summary: 'An error occured', detail: error });
+                    toast.add({ severity: 'error', summary: 'An error occured', detail: error });
                 })
                 .finally(function () {
                     // always executed
@@ -152,7 +152,7 @@ const updateDeviceInfo = () => {
             })
             .catch(function (error) {
                 console.log(error);
-                toast.add({ severity: 'danger', summary: 'An error occured', detail: error });
+                toast.add({ severity: 'error', summary: 'An error occured', detail: error });
             })
             .finally(function () {
                 // always executed
