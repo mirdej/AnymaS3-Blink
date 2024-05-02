@@ -5,6 +5,15 @@
 #include "LittleFS.h"
 #include "AnymaEspSettings.h"
 
+
+/** ------------------------------------------------------------------------------------------------------------------------------------
+ * @brief  Serve static files from MAIN_FILE_SYSTEM
+ *
+ *
+ *
+ * @param  req          aWot Request
+ * @param  res          aWot Response
+ */
 void file_list()
 {
   File root, foundfile;

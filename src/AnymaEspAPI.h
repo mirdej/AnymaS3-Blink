@@ -12,7 +12,6 @@ extern Application app;
 
 #define __APP_USE_CORS_HEADERS 1
 // set to 1 to be able to run a development server on a remote machine
-// adds headersfor CORS
 /*Cross-origin resource sharing (CORS) is a mechanism for integrating applications.
 CORS defines a way for client web applications that are loaded in one domain to interact with resources in a different domain.
 */

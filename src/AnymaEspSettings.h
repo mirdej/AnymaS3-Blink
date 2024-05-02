@@ -16,10 +16,14 @@
 #define FTP_USER "me"
 #define FTP_PASSWORD "me"
 
-// --------------------------------------------------------------------------------- Global Settings
-//                                                      Values can be overwritten
-//                                                      Stored in SETTINGS_FILE_PATH on main FS
 
+/** ------------------------------------------------------------------------------------------------------------------------------------
+ * @brief  Global Settings Manager
+ *
+ *  Define globals and default values inside this class. 
+ *  Data is stored as a JSON file in SETTINGS_FILE_PATH on main FS and retrieved on reboot
+
+ */
 struct AnymaEspSettings
 {
 public:
@@ -42,24 +46,29 @@ public:
 
 extern AnymaEspSettings settings;
 
+
+/** ------------------------------------------------------------------------------------------------------------------------------------
+ * @brief  Get Settings as a JSON document
+ */
 JsonDocument AnymaEspSettings::get_json()
 {
     JsonDocument doc;
 
-    // -------------------------------------------------------------------------------------------------------------------- CUSTOMIZE THIS PART
+    // -----------------------------------------------CUSTOMIZE THIS PART
     // Add values in the document
     doc["hostname"] = hostname;
     doc["ssid"] = ssid;
     doc["pass"] = pass;
     doc["blink_color"] = blink_color;
     doc["blink_interval"] = blink_interval;
-    // -------------------------------------------------------------------------------------------------------------------- END CUSTOM
+    // -----------------------------------------------END CUSTOM
 
     return doc;
 }
 
-// --------------------------------------------------------------------------------- READ
-
+/** ------------------------------------------------------------------------------------------------------------------------------------
+ * @brief  Read Settings from JSON file in Filesystem
+ */
 err_t AnymaEspSettings::read()
 {
     if (!MAIN_FILE_SYSTEM.exists(SETTINGS_FILE_PATH))
@@ -81,7 +90,7 @@ err_t AnymaEspSettings::read()
         JsonDocument doc;
         deserializeJson(doc, file);
 
-        // -------------------------------------------------------------------------------------------------------------------- CUSTOMIZE THIS PART
+        // ---------------------------------------------- CUSTOMIZE THIS PART
 
         if (doc["hostname"])
             hostname = doc["hostname"].as<String>();
@@ -94,7 +103,7 @@ err_t AnymaEspSettings::read()
         if (doc["blink_interval"])
             blink_interval = doc["blink_interval"];
 
-        // -------------------------------------------------------------------------------------------------------------------- END CUSTOM
+        // --------------------------------------------- END CUSTOM
 
         Serial.println("Settings read:");
         serializeJsonPretty(doc,Serial);
@@ -104,8 +113,9 @@ err_t AnymaEspSettings::read()
     }
 }
 
-// --------------------------------------------------------------------------------- WRITE
-
+/** ------------------------------------------------------------------------------------------------------------------------------------
+ * @brief  Write Settings to JSON file in Filesystem
+ */
 err_t AnymaEspSettings::write()
 {
 
@@ -168,4 +178,7 @@ void AnymaEspSettings::begin()
         0,                // Priority at which the task is created.
         NULL);
 }
+
+
+
 #endif

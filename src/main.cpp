@@ -14,8 +14,7 @@ or: worlds most complicated Arduino Blink Sketch
 /* TODOs
 
 - Is there still a memory leak when serving files??
-- mDNS responder stops responding
-
+- mDNS responder stops responding ?
 
 */
 
@@ -33,6 +32,10 @@ or: worlds most complicated Arduino Blink Sketch
 
 AnymaEspSettings settings;
 AnymaEspNetworking networking;
+
+
+//----------------------------------------------------------------------------------------
+//																				                                     User Globals
 
 #define NUM_PIXELS 1
 CRGB pixel[NUM_PIXELS];
@@ -70,7 +73,9 @@ void blink_task(void *)
 
 
 #if __DEBUG_TASK_ENABLED
-void debug_task(void *)
+//----------------------------------------------------------------------------------------
+//																				                                      Debug Task
+oid debug_task(void *)
 {
   int last_free_ram;
   multi_heap_info_t info;
@@ -106,7 +111,6 @@ void setup()
   // Format if there is no Filesystem, Max open files = 10 for better Webserver stability
   MAIN_FILE_SYSTEM.begin(true, "/littlefs", 10U);
   file_list();
-
   settings.begin();
   networking.begin();
 
