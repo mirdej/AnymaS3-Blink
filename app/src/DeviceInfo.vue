@@ -83,11 +83,11 @@ const setHostname = () => {
     console.log("New hostname: " + s)
 
 
-    axios.get(window.device_url + 'api/hostname', {
-        params: {
-            set: s
-        }, timeout: 2000
-    })
+    axios.put(window.device_url + 'api/settings', {
+    params: {
+      "hostname": s,
+    }, timeout: 2000
+  })
         .then(function (response) {
             console.log(response);
             toast.add({ severity: 'success', summary: 'Hostname', detail: "Set to " + s, life: 4000 });

@@ -50,7 +50,7 @@ void cors_headers(Request &req, Response &res)
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, OPTIONS");
     res.set("Access-Control-Allow-Headers", "Content-Type");
-    log_v("_____________________\nPath %s, Method %d", req.path(), req.method());
+    //  log_v("_____________________\nPath %s, Method %d", req.path(), req.method());
     // res.status(204);
     if (req.method() == 7)
         res.sendStatus(204);
@@ -59,16 +59,17 @@ void cors_headers(Request &req, Response &res)
 
 const char *indexFile = "/index.html";
 
-/**
+/** ------------------------------------------------------------------------------------------------------------------------------------
  * @brief  Serve static files from MAIN_FILE_SYSTEM
  *
- * Please note that hostname must not contain domain name, as mDNS uses '.local' domain.
+ *
  *
  * @param  req          aWot Request
  * @param  res          aWot Response
  */
 void fileServer(Request &req, Response &res)
 {
+
     if (req.method() != Request::GET)
     {
         return;
@@ -169,11 +170,11 @@ void TaskClientSocket(void *pvParameters)
 
     if (clientHandle.connected())
     {
-        log_v("New Client Connected. Client#: %d", client_id);
+        //   log_v("New Client Connected. Client#: %d", client_id);
         app.process(&clientHandle);
         clientHandle.stop();
     }
-    log_v("Client #%d disconnected", client_id);
+    //  log_v("Client #%d disconnected", client_id);
     networking.num_client_connections--;
     vTaskDelete(NULL);
 }
@@ -190,8 +191,8 @@ void wifi_task(void *)
 
     WiFi.mode(WIFI_STA);
     WiFi.setSleep(false); // better resonsiveness, more power consumption
-    //wifiMulti.addAP(settings.ssid.c_str(), settings.pass.c_str());
-wifiMulti.addAP("Anymair","Mot de passe pas complique");
+    // wifiMulti.addAP(settings.ssid.c_str(), settings.pass.c_str());
+    wifiMulti.addAP("Anymair", "Mot de passe pas complique");
 
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -221,8 +222,6 @@ wifiMulti.addAP("Anymair","Mot de passe pas complique");
 
     // setup_webserver();
     findFriends();
-
-
 
 #if __APP_USE_CORS_HEADERS
     app.use(&cors_headers);

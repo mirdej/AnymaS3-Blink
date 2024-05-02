@@ -43,7 +43,7 @@ const setblink = () => {
 
     .then(function (response) {
       console.log(response);
-      toast.add({ severity: 'success', summary: 'Blink time updated', detail: "Time: " + blink_interval.value + " ms", life: 2000 });
+      toast.add({ severity: 'success', summary: 'Settings updated', detail: "Time: " + blink_interval.value + " ms\nColor: " + blink_color.value, life: 2000 });
     })
     .catch(function (error) {
       console.log(error);
@@ -52,27 +52,7 @@ const setblink = () => {
     .finally(function () {
       // always executed
     });
-}
-
-/* watch(blink_color, (now, before) => {
-  console.log(now, before)
-  axios.get(window.device_url + 'api/blink_color', {
-    params: {
-      set: now
-    }, timeout: 2000
-  }).then(function (response) {
-    console.log(response);
-  })
-    .catch(function (error) {
-      console.log(error);
-      toast.add({ severity: 'error', summary: 'An error occured', detail: error, life: 3000});
-    })
-    .finally(function () {
-      // always executed
-    });
-}) */
-
-
+  }
 
 onMounted(() => {
 

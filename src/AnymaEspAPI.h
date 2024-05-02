@@ -3,51 +3,43 @@
 
 #include "WiFi.h"
 #include "AnymaEspSettings.h"
+#include "AnymaESPUtils.h"
 #include "ArduinoJson.h"
 #include <aWOT.h>
 #include "MimeTypes.h"
 
 extern Application app;
 
+#define __APP_USE_CORS_HEADERS 1
 // set to 1 to be able to run a development server on a remote machine
 // adds headersfor CORS
 /*Cross-origin resource sharing (CORS) is a mechanism for integrating applications.
 CORS defines a way for client web applications that are loaded in one domain to interact with resources in a different domain.
 */
-#define __APP_USE_CORS_HEADERS 1
-
-String sanitizeColorInput(String s)
-{
-  char buf[7];
-  s.toLowerCase();
-  s.toCharArray(buf, 6);
-  for (int i = 0; i < 6; i++)
-  {
-    if ((buf[i] < '0' || buf[i] > '9') &&
-        (buf[i] < 'a' || buf[i] > 'f'))
-    {
-      buf[i] = '0';
-    }
-  }
-  buf[6] = 0;
-  return String(buf);
-}
 
 void setup_api()
 {
   //--------------------------------------------------------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------------------------------------------------- GET
 
+  app.get("/api/reboot", [](Request &req, Response &res)
+          {
+              res.status(204);
+              res.set("Content-Type", "application/json");
+              res.end(); 
+              xTaskCreate(reboot_task, "Reboot",    4096,       NULL,     0,          NULL); });
+
   app.get("/api/settings", [](Request &req, Response &res)
           {
               res.status(200);
               res.set("Content-Type", "application/json");
-              serializeJson(settings.get_json(), req); });
+              serializeJson(settings.get_json(), req); 
+              res.end(); });
 
   app.get("/api/deviceinfo", [](Request &req, Response &res)
           {
               JsonDocument doc;
-              char data[2048];
+
               doc["message"] = "deviceinfo";
               doc["firmware"] = PROJECT_PATH;
               doc["version"] = FIRMWARE_VERSION;
@@ -82,10 +74,10 @@ void setup_api()
               doc["fs_used"] = LittleFS.usedBytes();
               doc["fs_total"] = LittleFS.totalBytes();
 
-              size_t len = serializeJson(doc, data);
-              log_v("Data size: %d", len);
               res.status(200);
-              res.print(data); });
+              res.set("Content-Type", "application/json");
+              serializeJson(doc, req); 
+              res.end(); });
 
   //--------------------------------------------------------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------------------------------------------------- PUT
@@ -119,7 +111,8 @@ void setup_api()
                   settings.hostname = doc["params"]["hostname"].as<String>();
               }
               settings.dirty = true;
-              res.sendStatus(204); });
+              res.sendStatus(204);
+              res.end(); });
 }
 
 #endif

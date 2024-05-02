@@ -11,15 +11,13 @@ or: worlds most complicated Arduino Blink Sketch
 ==========================================================================================*/
 //                                                                                      LIB
 
-/* TODOs 
+/* TODOs
 
 - Is there still a memory leak when serving files??
 - mDNS responder stops responding
 
 
 */
-
-
 
 #include <Arduino.h>
 #include "FS.h"
@@ -69,6 +67,9 @@ void blink_task(void *)
   }
 }
 
+
+
+#if __DEBUG_TASK_ENABLED
 void debug_task(void *)
 {
   int last_free_ram;
@@ -79,10 +80,12 @@ void debug_task(void *)
 
     log_v("ram_free: %d, diff %d", info.total_free_bytes, info.total_free_bytes - last_free_ram);
     last_free_ram = info.total_free_bytes;
-   
+
     vTaskDelay(pdMS_TO_TICKS(2000));
   };
 }
+#endif
+
 
 //========================================================================================
 //----------------------------------------------------------------------------------------
@@ -115,6 +118,7 @@ void setup()
       0,          // Priority at which the task is created.
       NULL);
 
+#if __DEBUG_TASK_ENABLED
   xTaskCreate(
       debug_task, // Function that implements the task.
       "Debug",    // Text name for the task.
@@ -122,7 +126,7 @@ void setup()
       NULL,       // Parameter passed into the task.
       0,          // Priority at which the task is created.
       NULL);
-
+#endif
   log_v("Setup Done");
   log_v("________________________");
 

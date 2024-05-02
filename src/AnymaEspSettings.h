@@ -6,6 +6,10 @@
 #include "FS.h"
 #include "LittleFS.h"
 
+
+
+
+#define __DEBUG_TASK_ENABLED false
 #define MAIN_FILE_SYSTEM LittleFS
 #define SETTINGS_FILE_PATH "/data/settings.json"
 
@@ -144,7 +148,7 @@ void preferences_task(void *)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(30000));
+        vTaskDelay(pdMS_TO_TICKS(3000));
         if (settings.dirty)
         {
             settings.write();
