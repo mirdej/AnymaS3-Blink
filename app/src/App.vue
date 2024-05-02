@@ -11,6 +11,16 @@ import ConfirmDialog from 'primevue/confirmdialog';
 
 var host;
 
+var ip = location.host;
+  if (ip.startsWith('127') || ip.startsWith('localhost')) {
+    window.device_url = "http://baby-s3.local/";
+    window.served_from_device = false;
+  } else {
+    window.device_url = "http://" + ip + "/";
+    window.served_from_device = true;
+  }
+
+
 
 //-------------------------------------------------------  REACTIVE
 
@@ -19,13 +29,12 @@ const blink_interval = ref();
 const toast = useToast();
 const version = __APP_VERSION__
 
-
 //-------------------------------------------------------  INTERACTION
 
 const setblink = () => {
   console.log(blink_color.value)
 
-  axios.get(host + 'api/blink_interval', {
+  axios.get(window.device_url + 'api/blink_interval', {
     params: {
       set: blink_interval.value
     }, timeout: 2000
@@ -46,7 +55,7 @@ const setblink = () => {
 
 watch(blink_color, (now, before) => {
   console.log(now, before)
-  axios.get(host + 'api/blink_color', {
+  axios.get(window.device_url + 'api/blink_color', {
     params: {
       set: now
     }, timeout: 2000
@@ -62,18 +71,12 @@ watch(blink_color, (now, before) => {
     });
 })
 
+
+
 onMounted(() => {
 
-  var ip = location.host;
-  if (ip.startsWith('127') || ip.startsWith('localhost')) {
-    host = "http://baby_s3.local/";
-  } else {
-    host = "http://" + ip + "/";
-  }
-
-
   axios
-    .get(host + 'api/fetchall')
+    .get(window.device_url + 'api/fetchall')
     // .then(response => (blink_interval.value = response.data))
     .then(response => {
       blink_color.value = response.data.blink_color;

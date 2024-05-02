@@ -4,14 +4,32 @@
 
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch,onMounted } from 'vue'
 import DeviceInfo from "./DeviceInfo.vue"
+import Badge from 'primevue/badge';
+import axios from 'axios';
+
 
 //-------------------------------------------------------  REACTIVE
 const props = defineProps(['title','app_version']);
-
+const is_local = ref(!window.served_from_device);
+const talking_to = ref(window.device_url)
 const year = ref(0);
 year.value = new Date().getFullYear();
+
+onMounted(() => {
+
+axios.get(window.device_url + 'api/deviceinfo', { timeout: 5000 })
+
+.then(function (response) {
+    window.device_url = "http://" + response.data.ip + "/";
+    talking_to.value=window.device_url;
+    console .log(window.device_url);
+   /*  chartData.value.labels.push('.');
+   chartData.value.datasets[0].data.push(50);
+    console.log(chartData.value.datasets[0].data); */
+})
+})
 
 </script>
 
@@ -24,7 +42,7 @@ year.value = new Date().getFullYear();
 <template>
     <header>
         <img class="logo_img" src="/logo_anyma_black.svg" alt="anyma" />
-        {{title}}
+        {{title}} <span style=" font-size:.7em;padding:2px;color:#888"> @ {{talking_to}} <Badge v-if="is_local" value="LOCALLY SERVED" severity="warning" /></span>
     </header>
     <footer>
         Version {{app_version}} © {{ year }} Michael Egger <a href="https://www.anyma.ch/">[ a n y m a ]</a>

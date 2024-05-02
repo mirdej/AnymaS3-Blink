@@ -39,6 +39,7 @@ const setChartData = () => {
 
 onMounted(() => {
     chartData.value = setChartData();
+    console.log(window.device_url);
 });
 
 const percentFreeRam = computed(() => {
@@ -63,14 +64,7 @@ watch(deviceInfo_visible, (vis) => {/* console.log(vis) */
 
 
 //-------------------------------------------------------  GLOBALS
-var host = "baby_s3.local"
-var ip = location.host;
-if (ip.startsWith('127') || ip.startsWith('localhost')) {
-    //host = "http://baby_s3.local/";
-    host = "http://192.168.252.107/";
-} else {
-    host = "http://" + ip + "/";
-}
+
 const toast = useToast();
 
 
@@ -84,12 +78,12 @@ const onDeviceButtonClick = () => {
 const setHostname = () => {
     hostnameDialogVisible.value = false;
     var s = new_hostname.value;
-    s = s.replace(/\W/g, "_");
+    s = s.replace(/\W/g, "-");
 
     console.log("New hostname: " + s)
 
 
-    axios.get(host + 'api/hostname', {
+    axios.get(window.device_url + 'api/hostname', {
         params: {
             set: s
         }, timeout: 2000
@@ -118,7 +112,7 @@ const onPowerButtonClick = () => {
         rejectLabel: 'Cancel',
         acceptLabel: 'Reboot',
         accept: () => {
-            axios.get(host + 'api/reboot', { timeout: 2000 })
+            axios.get(window.device_url + 'api/reboot', { timeout: 2000 })
 
                 .then(function (response) {
                     console.log(response);
@@ -167,13 +161,15 @@ const uptime = (m) => {
 
 const updateDeviceInfo = () => {
     if (deviceInfo_visible) {
-        axios.get(host + 'api/deviceinfo', { timeout: 2000 })
+        axios.get(window.device_url + 'api/deviceinfo', { timeout: 2000 })
 
             .then(function (response) {
                 device.value = response.data;
-                chartData.value.labels.push('.');
+                window.device_url = "http://" + device.value.ip + "/";
+                console .log(window.device_url);
+               /*  chartData.value.labels.push('.');
                chartData.value.datasets[0].data.push(50);
-                console.log(chartData.value.datasets[0].data);
+                console.log(chartData.value.datasets[0].data); */
             })
             .catch(function (error) {
                 console.log(error);
@@ -189,7 +185,7 @@ const updateDeviceInfo = () => {
 
 
 
-$
+
 
 
 <template>
@@ -206,7 +202,7 @@ $
         <p><span class="device_info_bold">RAM: </span> Free: {{ humanFileSize(device.ram_free) }} | Largest free block :
             {{ humanFileSize(device.ram_largest_free_block) }} | Lowest: {{ humanFileSize(device.ram_lowest) }}</p>
         <Knob :size="64" v-model="percentFreeRam" valueTemplate="{value}%" readonly />
-        <Chart type="line" :data="chartData" :options="chartOptions" class="h-1rem" />
+    <!--     <Chart type="line" :data="chartData" :options="chartOptions" class="h-1rem" style="height:3vh"/> -->
 
         <p><span class="device_info_bold">Flash: </span>{{ humanFileSize(device.flash_size) }} | Free Sketch Size:
             {{ humanFileSize(device.flash_free_sketch_space) }}</p>

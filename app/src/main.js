@@ -27,6 +27,9 @@ import './assets/app.css'
 import 'primevue/resources/themes/aura-dark-teal/theme.css'
 import 'primeicons/primeicons.css'
 
+window.device_url="http://lalala:8000/";
+window.served_from_device = true;
+
 const app = createApp(App);
 
 app.use(VueAxios, axios)
