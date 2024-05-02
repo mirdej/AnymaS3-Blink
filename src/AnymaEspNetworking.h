@@ -20,6 +20,9 @@
 #include "ESP-FTP-Server-Lib.h"
 #include "FTPFilesystem.h"
 
+#define ANYMA_ESP_SERVICE_NAME "anyma_esp32"
+#define ANYMA_ESP_SERVICE_PORT 3101
+
 #define WEBROOT "/webroot"
 #define READ_BUFFER_SIZE 512
 const char *NTP_SERVER = "pool.ntp.org";
@@ -43,15 +46,20 @@ extern AnymaEspNetworking networking;
 
 const char *indexFile = "/index.html";
 
+/**
+ * @brief  Serve static files from MAIN_FILE_SYSTEM
+ *
+ * Please note that hostname must not contain domain name, as mDNS uses '.local' domain.
+ *
+ * @param  req          aWot Request
+ * @param  res          aWot Response
+ */
 void fileServer(Request &req, Response &res)
 {
-
     if (req.method() != Request::GET)
     {
         return;
     }
-
-
 
     const char *path = req.path();
 
@@ -60,12 +68,11 @@ void fileServer(Request &req, Response &res)
         path = indexFile;
     }
 
-
     char local_path[120];
     strcpy(local_path, WEBROOT);
     strcat(local_path, path);
 
-    log_v("Request file %s -> %s", path,local_path);
+    log_v("Request file %s -> %s", path, local_path);
 
     if (!MAIN_FILE_SYSTEM.exists(local_path))
     {
@@ -88,7 +95,6 @@ void fileServer(Request &req, Response &res)
 
     while (length)
     {
-
         size_t toRead = length > READ_BUFFER_SIZE ? READ_BUFFER_SIZE : length;
         file.read(readBuffer, toRead);
         res.write(readBuffer, toRead);
@@ -99,6 +105,48 @@ void fileServer(Request &req, Response &res)
     res.end();
 }
 
+String escapedMac()
+{
+    String s = WiFi.macAddress();
+    s.replace(":", "");
+    s.toLowerCase();
+    return s;
+}
+
+void findFriends()
+{
+
+    int n = MDNS.queryService(ANYMA_ESP_SERVICE_NAME, "tcp");
+    if (n == 0)
+    {
+        Serial.println("no services found");
+    }
+    else
+    {
+
+        JsonDocument doc;
+
+        Serial.print(n);
+        Serial.println(" service(s) found");
+        for (int i = 0; i < n; ++i)
+        {
+            JsonObject server_info;
+            ;
+            server_info["name"] = String(MDNS.hostname(i));
+            Serial.println(MDNS.hostname(i));
+
+            server_info["ip"] = String(MDNS.IP(i).toString());
+            server_info["port"] = String(MDNS.port(i));
+            doc.add(server_info);
+        }
+
+        char data[2084];
+        size_t len = serializeJson(doc, Serial);
+        /*   Serial.print("Data size: ");
+          Serial.println(len,DEC);
+          ws.textAll(data, len); */
+    }
+}
 //----------------------------------------------------------------------------------------
 //																				                                       WiFi Task
 void TaskClientSocket(void *pvParameters)
@@ -119,6 +167,7 @@ void TaskClientSocket(void *pvParameters)
 
 void wifi_task(void *)
 {
+    long last_mdns_lookup; //= millis();
     configTime(0, 0, NTP_SERVER);
     setenv("TZ", TZ_STRING, 1);
     tzset();
@@ -137,6 +186,11 @@ void wifi_task(void *)
     }
     log_i("IP address: %s", WiFi.localIP().toString().c_str());
 
+    // From WLED:
+    //  "end" must be called before "begin" is called a 2nd time
+    //  see https://github.com/esp8266/Arduino/issues/7213
+    MDNS.end();
+
     if (!MDNS.begin(settings.hostname.c_str()))
     {
         log_e("Error setting up MDNS responder!");
@@ -147,11 +201,13 @@ void wifi_task(void *)
         log_i("Hostname: %s", settings.hostname);
         MDNS.addService("http", "tcp", 80);
         MDNS.addService("ftp", "tcp", 21);
-        MDNS.addService("anyma_esp32", "tcp", 86291);
+        MDNS.addService(ANYMA_ESP_SERVICE_NAME, "tcp", ANYMA_ESP_SERVICE_PORT);
+        MDNS.addServiceTxt(ANYMA_ESP_SERVICE_NAME, "tcp", "mac", escapedMac().c_str());
     }
 
     // setup_webserver();
-    
+    findFriends();
+
     setup_api();
 
     app.get(&fileServer);
@@ -170,13 +226,27 @@ void wifi_task(void *)
 
         if (WiFi.status() == WL_CONNECTED)
         {
+
+            if (millis() - last_mdns_lookup > 60000)
+            {
+                findFriends();
+                /*
+                IPAddress shouldBeMyIP = MDNS.queryHost(settings.hostname + ".local",1000);
+                if (WiFi.localIP() == shouldBeMyIP) {
+                    log_v("MDNS still working");
+                } else {
+                    log_e("I have disappeared from mDNS? (Probe returned %s). Am I still alive??? (My IP: %s)",shouldBeMyIP,WiFi.localIP().toString().c_str());
+                } */
+                last_mdns_lookup = millis();
+            }
+
             ftp.handle();
 
             WiFiClient client = server.available();
             if (client)
             {
                 xTaskCreatePinnedToCore(
-                    TaskClientSocket, "TaskClientSocket", 8192, &client, 2, NULL, 1);
+                    TaskClientSocket, "TaskClientSocket", 8192, &client, 2, NULL, ARDUINO_RUNNING_CORE);
             }
             taskYIELD();
         }

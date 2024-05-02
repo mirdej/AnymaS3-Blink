@@ -5,6 +5,8 @@ import Knob from 'primevue/knob';
 import Dialog from 'primevue/dialog';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
+import Chart from 'primevue/chart';
+
 
 import { ref, computed, onMounted, watch } from 'vue'
 import { useToast } from 'primevue/usetoast';
@@ -16,8 +18,28 @@ const new_hostname = ref("New-Hostname")
 const hostnameDialogVisible = ref(false);
 const deviceInfo_visible = ref(false);
 const device = ref({ "message": "deviceinfo", "firmware": "unknown", "version": "unknown", "chip": "unknown", "chip_rev": 0, "chip_cores": 0, "chip_fcpu": 0, "sdk_version": "unknown", "flash_size": 0, "flash_speed": 0, "flash_mode": 0, "flash_free_sketch_space": 0, "hostname": "unknown", "ip": "unknown", "mac": "unknown", "millis": 0, "ram_free": 0, "ram_lowest": 0, "ram_largest_free_block": 0, "psram_size": 0, "psram_free": 0, "psram_free_min": 0, "psram_max_alloc": 0, "fs_used": 0, "fs_total": 1 });
+const chartData = ref();
+const chartOptions = ref();
 
+const setChartData = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
 
+    return {
+        labels:[".","."],
+        datasets: [
+            {
+                label: 'Free memory',
+                data: [50,50],
+                fill: false,
+                borderColor: documentStyle.getPropertyValue('--cyan-500'),
+                tension: 0.4
+            }]
+    };
+};
+
+onMounted(() => {
+    chartData.value = setChartData();
+});
 
 const percentFreeRam = computed(() => {
     var f = device.value.ram_free / 327680. * 100.;
@@ -44,7 +66,8 @@ watch(deviceInfo_visible, (vis) => {/* console.log(vis) */
 var host = "baby_s3.local"
 var ip = location.host;
 if (ip.startsWith('127') || ip.startsWith('localhost')) {
-    host = "http://baby_s3.local/";
+    //host = "http://baby_s3.local/";
+    host = "http://192.168.252.107/";
 } else {
     host = "http://" + ip + "/";
 }
@@ -77,7 +100,7 @@ const setHostname = () => {
         })
         .catch(function (error) {
             console.log(error);
-            toast.add({ severity: 'error', summary: 'An error occured', detail: error });
+            toast.add({ severity: 'error', summary: 'An error occured', detail: error, life:4000});
         })
         .finally(function () {
             // always executed
@@ -103,7 +126,7 @@ const onPowerButtonClick = () => {
                 })
                 .catch(function (error) {
                     console.log(error);
-                    toast.add({ severity: 'error', summary: 'An error occured', detail: error });
+                    toast.add({ severity: 'error', summary: 'An error occured', detail: error , life: 4000 });
                 })
                 .finally(function () {
                     // always executed
@@ -148,11 +171,13 @@ const updateDeviceInfo = () => {
 
             .then(function (response) {
                 device.value = response.data;
-                console.log(response);
+                chartData.value.labels.push('.');
+               chartData.value.datasets[0].data.push(50);
+                console.log(chartData.value.datasets[0].data);
             })
             .catch(function (error) {
                 console.log(error);
-                toast.add({ severity: 'error', summary: 'An error occured', detail: error });
+                toast.add({ severity: 'error', summary: 'An error occured', detail: error, life: 4000 });
             })
             .finally(function () {
                 // always executed
@@ -181,6 +206,7 @@ $
         <p><span class="device_info_bold">RAM: </span> Free: {{ humanFileSize(device.ram_free) }} | Largest free block :
             {{ humanFileSize(device.ram_largest_free_block) }} | Lowest: {{ humanFileSize(device.ram_lowest) }}</p>
         <Knob :size="64" v-model="percentFreeRam" valueTemplate="{value}%" readonly />
+        <Chart type="line" :data="chartData" :options="chartOptions" class="h-1rem" />
 
         <p><span class="device_info_bold">Flash: </span>{{ humanFileSize(device.flash_size) }} | Free Sketch Size:
             {{ humanFileSize(device.flash_free_sketch_space) }}</p>

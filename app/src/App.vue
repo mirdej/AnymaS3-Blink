@@ -37,7 +37,7 @@ const setblink = () => {
     })
     .catch(function (error) {
       console.log(error);
-      toast.add({ severity: 'error', summary: 'An error occured', detail: error });
+      toast.add({ severity: 'error', summary: 'An error occured', detail: error, life: 3000});
     })
     .finally(function () {
       // always executed
@@ -55,7 +55,7 @@ watch(blink_color, (now, before) => {
   })
     .catch(function (error) {
       console.log(error);
-      toast.add({ severity: 'error', summary: 'An error occured', detail: error });
+      toast.add({ severity: 'error', summary: 'An error occured', detail: error, life: 3000});
     })
     .finally(function () {
       // always executed

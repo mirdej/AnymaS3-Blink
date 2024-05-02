@@ -9,11 +9,32 @@
 
 extern Application app;
 
+
+
+
+void cors(Request &req, Response &res)
+{
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  log_v("_____________________\nPath %s, Method %d", req.path(), req.method());
+  // res.status(204);
+  if (req.method() == 7)
+    res.sendStatus(204);
+}
+
+
+
+
+
 void setup_api()
 {
   /*   app.get("/api/blink_color", &read_blink_color);
     app.post("/api/blink_color/:color", &update_blink_color); */
   // app.put("/api/blink_color/:color", &update_blink_color);
+app.use(&cors);
+
+
 
   app.get("/api/fetchall", [](Request &req, Response &res)
           {

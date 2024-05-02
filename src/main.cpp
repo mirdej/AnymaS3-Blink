@@ -11,6 +11,16 @@ or: worlds most complicated Arduino Blink Sketch
 ==========================================================================================*/
 //                                                                                      LIB
 
+/* TODOs 
+
+- Is there still a memory leak when serving files??
+- mDNS responder stops responding
+
+
+*/
+
+
+
 #include <Arduino.h>
 #include "FS.h"
 #include <FastLED.h>
