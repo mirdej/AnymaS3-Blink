@@ -3,7 +3,7 @@
 [ a n y m a ]
 S3 BLINK
 
-or: worlds most complicated Arduino Blink Sketch
+or: Maybe worlds most complicated Arduino Blink Sketch
 
 
 © 2024 Michael Egger AT anyma.ch
