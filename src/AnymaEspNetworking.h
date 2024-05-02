@@ -44,6 +44,19 @@ private:
 
 extern AnymaEspNetworking networking;
 
+#if __APP_USE_CORS_HEADERS
+void cors_headers(Request &req, Response &res)
+{
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    log_v("_____________________\nPath %s, Method %d", req.path(), req.method());
+    // res.status(204);
+    if (req.method() == 7)
+        res.sendStatus(204);
+}
+#endif
+
 const char *indexFile = "/index.html";
 
 /**
@@ -177,7 +190,8 @@ void wifi_task(void *)
 
     WiFi.mode(WIFI_STA);
     WiFi.setSleep(false); // better resonsiveness, more power consumption
-    wifiMulti.addAP(settings.ssid.c_str(), settings.pass.c_str());
+    //wifiMulti.addAP(settings.ssid.c_str(), settings.pass.c_str());
+wifiMulti.addAP("Anymair","Mot de passe pas complique");
 
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -208,8 +222,13 @@ void wifi_task(void *)
     // setup_webserver();
     findFriends();
 
-    setup_api();
 
+
+#if __APP_USE_CORS_HEADERS
+    app.use(&cors_headers);
+#endif
+
+    setup_api();
     app.get(&fileServer);
 
     server.begin();

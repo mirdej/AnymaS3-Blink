@@ -34,9 +34,10 @@ const version = __APP_VERSION__
 const setblink = () => {
   console.log(blink_color.value)
 
-  axios.get(window.device_url + 'api/blink_interval', {
+  axios.put(window.device_url + 'api/settings', {
     params: {
-      set: blink_interval.value
+      "blink_interval": blink_interval.value,
+      "blink_color": blink_color.value
     }, timeout: 2000
   })
 
@@ -53,7 +54,7 @@ const setblink = () => {
     });
 }
 
-watch(blink_color, (now, before) => {
+/* watch(blink_color, (now, before) => {
   console.log(now, before)
   axios.get(window.device_url + 'api/blink_color', {
     params: {
@@ -69,14 +70,14 @@ watch(blink_color, (now, before) => {
     .finally(function () {
       // always executed
     });
-})
+}) */
 
 
 
 onMounted(() => {
 
   axios
-    .get(window.device_url + 'api/fetchall')
+    .get(window.device_url + 'api/settings')
     // .then(response => (blink_interval.value = response.data))
     .then(response => {
       blink_color.value = response.data.blink_color;

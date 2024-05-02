@@ -9,11 +9,8 @@
 #define MAIN_FILE_SYSTEM LittleFS
 #define SETTINGS_FILE_PATH "/data/settings.json"
 
-
 #define FTP_USER "me"
 #define FTP_PASSWORD "me"
-
-
 
 // --------------------------------------------------------------------------------- Global Settings
 //                                                      Values can be overwritten
@@ -34,33 +31,15 @@ public:
     void begin();
     err_t read();
     err_t write();
+    JsonDocument get_json();
+
     bool dirty;
 };
 
 extern AnymaEspSettings settings;
 
-// --------------------------------------------------------------------------------- WRITE
-
-err_t AnymaEspSettings::write()
+JsonDocument AnymaEspSettings::get_json()
 {
-
-    // check for settings file
-    if (!MAIN_FILE_SYSTEM.exists("/data"))
-    {
-        log_i("Creating Directory /data");
-        MAIN_FILE_SYSTEM.mkdir("/data");
-    }
-
-    File file = MAIN_FILE_SYSTEM.open(SETTINGS_FILE_PATH, FILE_WRITE);
-
-    if (!file)
-    {
-        log_e("- failed to open file for writing");
-        return -2;
-    }
-
-    file.close();
-
     JsonDocument doc;
 
     // -------------------------------------------------------------------------------------------------------------------- CUSTOMIZE THIS PART
@@ -72,21 +51,7 @@ err_t AnymaEspSettings::write()
     doc["blink_interval"] = blink_interval;
     // -------------------------------------------------------------------------------------------------------------------- END CUSTOM
 
-    size_t bytes_written = serializeJson(doc, file);
-    file.close();
-
-    if (bytes_written)
-    {
-        log_i("Wrote % bytes to %s", bytes_written, SETTINGS_FILE_PATH);
-        dirty = false;
-    }
-    else
-    {
-        log_e("Settings write failed");
-        return -1;
-    }
-
-    return 0;
+    return doc;
 }
 
 // --------------------------------------------------------------------------------- READ
@@ -114,17 +79,62 @@ err_t AnymaEspSettings::read()
 
         // -------------------------------------------------------------------------------------------------------------------- CUSTOMIZE THIS PART
 
-        hostname = doc["hostname"].as<String>();
-        ssid = doc["ssid"].as<String>();
-        pass = doc["pass"].as<String>();
-        blink_color = doc["blink_color"].as<String>();
-        blink_interval = doc["blink_interval"];
+        if (doc["hostname"])
+            hostname = doc["hostname"].as<String>();
+        if (doc["ssid"])
+            ssid = doc["ssid"].as<String>();
+        if (doc["pass"])
+            pass = doc["pass"].as<String>();
+        if (doc["blink_color"])
+            blink_color = doc["blink_color"].as<String>();
+        if (doc["blink_interval"])
+            blink_interval = doc["blink_interval"];
 
         // -------------------------------------------------------------------------------------------------------------------- END CUSTOM
+
+        Serial.println("Settings read:");
+        serializeJsonPretty(doc,Serial);
 
         file.close();
         return 0;
     }
+}
+
+// --------------------------------------------------------------------------------- WRITE
+
+err_t AnymaEspSettings::write()
+{
+
+    // check for settings file
+    if (!MAIN_FILE_SYSTEM.exists("/data"))
+    {
+        log_i("Creating Directory /data");
+        MAIN_FILE_SYSTEM.mkdir("/data");
+    }
+
+    File file = MAIN_FILE_SYSTEM.open(SETTINGS_FILE_PATH, FILE_WRITE);
+
+    if (!file)
+    {
+        log_e("- failed to open file for writing");
+        return -2;
+    }
+
+    size_t bytes_written = serializeJson(get_json(), file);
+    file.close();
+
+    if (bytes_written)
+    {
+        log_i("Wrote %d bytes to %s", bytes_written, SETTINGS_FILE_PATH);
+        dirty = false;
+    }
+    else
+    {
+        log_e("Settings write failed");
+        return -1;
+    }
+
+    return 0;
 }
 
 //----------------------------------------------------------------------------------------
