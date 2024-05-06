@@ -6,6 +6,8 @@
 <script setup>
 import { ref, watch,onMounted } from 'vue'
 import DeviceInfo from "./DeviceInfo.vue"
+import SettingsBrowser from "./SettingsBrowser.vue"
+
 import Badge from 'primevue/badge';
 import axios from 'axios';
 
@@ -48,6 +50,7 @@ axios.get(window.device_url + 'api/deviceinfo', { timeout: 5000 })
         Version {{app_version}} © {{ year }} Michael Egger <a href="https://www.anyma.ch/">[ a n y m a ]</a>
     </footer>
     <DeviceInfo />
+    <SettingsBrowser />
 
 </template>
 
