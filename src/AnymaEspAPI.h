@@ -94,21 +94,13 @@ void setup_api()
               }
               //serializeJson(doc, Serial);
 
-              int i = doc["params"]["blink_interval"].as<int>();
-              if (i) {
-                i = constrain(i,50,60000);
-                settings.blink_interval = i;
-              }
+              SETTING_AS_STRING(hostname)
+              SETTING_AS_STRING(ssid)
+              SETTING_AS_STRING(pass)
 
-              if (doc["params"]["blink_color"]) {
-                String s = doc["params"]["blink_color"].as<String>();
-                log_v("COLOR %s, %s",s.c_str(),sanitizeColorInput(s).c_str());
-                settings.blink_color = sanitizeColorInput(s);
-              }
-
-              if (doc["params"]["hostname"]) {
-                  settings.hostname = doc["params"]["hostname"].as<String>();
-              }
+              SETTING_AS_COLORSTRING(blink_color)
+              SETTING_AS_INT(blink_interval)
+              
               settings.dirty = true;
               res.sendStatus(204);
               res.end(); });

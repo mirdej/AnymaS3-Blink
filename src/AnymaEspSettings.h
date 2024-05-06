@@ -5,7 +5,7 @@
 #include "ArduinoJson.h"
 #include "FS.h"
 #include "LittleFS.h"
-
+#include "AnymaEspMacros.h"
 
 
 
@@ -56,11 +56,13 @@ JsonDocument AnymaEspSettings::get_json()
 
     // -----------------------------------------------CUSTOMIZE THIS PART
     // Add values in the document
-    doc["hostname"] = hostname;
-    doc["ssid"] = ssid;
-    doc["pass"] = pass;
-    doc["blink_color"] = blink_color;
-    doc["blink_interval"] = blink_interval;
+
+    JSON_PUT(hostname);
+    JSON_PUT(ssid);
+    JSON_PUT(pass);
+    JSON_PUT(blink_color);
+    JSON_PUT(blink_interval);
+
     // -----------------------------------------------END CUSTOM
 
     return doc;
@@ -92,17 +94,12 @@ err_t AnymaEspSettings::read()
 
         // ---------------------------------------------- CUSTOMIZE THIS PART
 
-        if (doc["hostname"])
-            hostname = doc["hostname"].as<String>();
-        if (doc["ssid"])
-            ssid = doc["ssid"].as<String>();
-        if (doc["pass"])
-            pass = doc["pass"].as<String>();
-        if (doc["blink_color"])
-            blink_color = doc["blink_color"].as<String>();
-        if (doc["blink_interval"])
-            blink_interval = doc["blink_interval"];
-
+        JSON_GET_STRING(hostname)
+        JSON_GET_STRING(ssid)
+        JSON_GET_STRING(pass)
+        JSON_GET_STRING(blink_color)
+        JSON_GET(blink_interval)
+       
         // --------------------------------------------- END CUSTOM
 
         Serial.println("Settings read:");
